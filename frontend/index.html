@@ -1,21 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+  <head>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Medicine Dashboard</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
     <div class="disclaimer" id="disclaimer">
-        Disclaimer: All medicine names and prices used in this application are fictional and do not represent any real medicine(s).
+      Disclaimer: All medicine names and prices used in this application are
+      fictional and do not represent any real medicine(s).
     </div>
     <header>
-        <h1>Medicine Tracker</h1>
+      <h1>Medicine Tracker</h1>
     </header>
     <main>
+      <section id="medicine-list-section">
+        <h2>Available Medicines</h2>
+        <div id="medicine-list">
+          <!-- Medicine items will be dynamically inserted here -->
+        </div>
+      </section>
 
+      <hr />
+
+      <!-- Form to add new medicine -->
+      <h2>Add New Medicine</h2>
+      <form id="medicine-form">
+        <div class="form-group">
+          <label for="med-name">Name</label>
+          <input type="text" id="med-name" required />
+        </div>
+
+        <div class="form-group">
+            <label for="med-price">Price:</label>
+            <input type="number" id="med-price" required min="0" step="0.01" required/>
+        </div>
+
+        <button type="submit">Add medicine</button>
+      </form>
     </main>
+
     <script src="script.js"></script>
-</body>
+  </body>
 </html>
