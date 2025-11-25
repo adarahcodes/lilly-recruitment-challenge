@@ -1,26 +1,13 @@
 from fastapi import FastAPI, Form
 from fastapi.middleware.cors import CORSMiddleware
-"""
-This module defines a FastAPI application for managing a list of medicines.
-It provides endpoints to retrieve all medicines, retrieve a single medicine by name,
-and create a new medicine.
-Endpoints:
-- GET /medicines: Retrieve all medicines from the data.json file.
-- GET /medicines/{name}: Retrieve a single medicine by name from the data.json file.
-- POST /create: Create a new medicine with a specified name and price.
-- POST /update: Update the price of a medicine with a specified name.
-- DELETE /delete: Delete a medicine with a specified name.
-Functions:
-- get_all_meds: Reads the data.json file and returns all medicines.
-- get_single_med: Reads the data.json file and returns a single medicine by name.
-- create_med: Reads the data.json file, adds a new medicine, and writes the updated data back to the file.
-- update_med: Reads the data.json file, updates the price of a medicine, and writes the updated data back to the file.
-- delete_med: Reads the data.json file, deletes a medicine, and writes the updated data back to the file.
-Usage:
-Run this module directly to start the FastAPI application.
-"""
+from pathlib import Path
 import uvicorn
 import json
+import re
+from typing import Dict, Any
+
+BASE_DIR = Path(__file__).resolve().parent
+DATA_FILE = BASE_DIR / 'data.json'
 
 app = FastAPI()
 
@@ -32,99 +19,119 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/medicines")
+
+def read_db() -> Dict[str, Any]:
+    if not DATA_FILE.exists():
+        return {"medicines": []}
+    try:
+        with DATA_FILE.open("r", encoding="utf-8") as fh:
+            return json.load(fh)
+    except (json.JSONDecodeError, OSError):
+        # If the file is corrupted or unreadable, return an empty shape
+        return {"medicines": []}
+
+
+def write_db(data: Dict[str, Any]) -> None:
+    try:
+        with DATA_FILE.open('w', encoding='utf-8') as fh:
+            json.dump(data, fh, indent=4)
+    except OSError:
+        # Best-effort write; callers will not crash but data may not persist
+        pass
+
+
+def compute_average_from_db(db: Dict[str, Any]):
+    """Compute average price from DB dict.
+
+    - Accepts ints/floats directly.
+    - Accepts numeric strings like "12.50", "$12.50", "12.50 USD" by stripping non-number characters.
+    - Ignores None and non-numeric values such as "N/A".
+    """
+    prices = []
+    for med in db.get('medicines', []):
+        p = med.get('price')
+        if p is None:
+            continue
+        if isinstance(p, (int, float)):
+            prices.append(float(p))
+            continue
+        if isinstance(p, str):
+            # Remove anything that's not digit, dot or minus (handles $ and text)
+            s = re.sub(r"[^0-9.\-]", "", p)
+            if not s:
+                continue
+            try:
+                prices.append(float(s))
+            except ValueError:
+                continue
+
+    if not prices:
+        return {"average": None, "count": 0}
+
+    avg = round(sum(prices) / len(prices), 2)
+    return {"average": avg, "count": len(prices)}
+
+
+@app.get('/medicines')
 def get_all_meds():
-    """
-    This function reads the data.json file and returns all medicines.
-    Returns:
-        dict: A dictionary of all medicines
-    """
-    with open('data.json') as meds:
-        data = json.load(meds)
-    return data
+    return read_db()
 
-@app.get("/medicines/{name}")
+
+@app.get('/medicines/{name}')
 def get_single_med(name: str):
-    """
-    This function reads the data.json file and returns a single medicine by name.
-    Args:
-        name (str): The name of the medicine to retrieve.
-    Returns:
-        dict: A dictionary containing the medicine details
-    """
-    with open('data.json') as meds:
-        data = json.load(meds)
-        for med in data["medicines"]:
-            print(med)
-            if med['name'] == name:
-                return med
+    db = read_db()
+    for med in db.get('medicines', []):
+        if med.get('name') == name:
+            return med
     return {"error": "Medicine not found"}
 
-@app.post("/create")
+
+@app.post('/create')
 def create_med(name: str = Form(...), price: float = Form(...)):
-    """
-    This function creates a new medicine with the specified name and price.
-    It expects the name and price to be provided as form data.
-    Args:
-        name (str): The name of the medicine.
-        price (float): The price of the medicine.
-    Returns:
-        dict: A message confirming the medicine was created successfully.
-    """
-    with open('data.json', 'r+') as meds:
-        current_db = json.load(meds)
-        new_med = {"name": name, "price": price}
-        current_db["medicines"].append(new_med)
-        meds.seek(0)
-        json.dump(current_db, meds)
-        meds.truncate()
-        
-    return {"message": f"Medicine created successfully with name: {name}"}
+    db = read_db()
+    db.setdefault('medicines', []).append({"name": name, "price": price})
+    write_db(db)
+    avg = compute_average_from_db(db)
+    return {"message": f"Medicine created successfully with name: {name}", "average": avg["average"], "count": avg["count"]}
 
-@app.post("/update")
+
+@app.post('/update')
 def update_med(name: str = Form(...), price: float = Form(...)):
-    """
-    This function updates the price of a medicine with the specified name.
-    It expects the name and price to be provided as form data.
-    Args:
-        name (str): The name of the medicine.
-        price (float): The new price of the medicine.
-    Returns:
-        dict: A message confirming the medicine was updated successfully.
-    """
-    with open('data.json', 'r+') as meds:
-        current_db = json.load(meds)
-        for med in current_db["medicines"]:
-            if med['name'] == name:
-                med['price'] = price
-                meds.seek(0)
-                json.dump(current_db, meds)
-                meds.truncate()
-                return {"message": f"Medicine updated successfully with name: {name}"}
+    db = read_db()
+    for med in db.get('medicines', []):
+        if med.get('name') == name:
+            med['price'] = price
+            write_db(db)
+            avg = compute_average_from_db(db)
+            return {"message": f"Medicine updated successfully with name: {name}", "average": avg["average"], "count": avg["count"]}
     return {"error": "Medicine not found"}
 
-@app.delete("/delete")
+
+@app.delete('/delete')
 def delete_med(name: str = Form(...)):
-    """
-    This function deletes a medicine with the specified name.
-    It expects the name to be provided as form data.
-    Args:
-        name (str): The name of the medicine to delete.
-    Returns:
-        dict: A message confirming the medicine was deleted successfully.
-    """
-    with open('data.json', 'r+') as meds:
-        current_db = json.load(meds)
-        for med in current_db["medicines"]:
-            if med['name'] == name:
-                current_db["medicines"].remove(med)
-                meds.seek(0)
-                json.dump(current_db, meds)
-                meds.truncate()
-                return {"message": f"Medicine deleted successfully with name: {name}"}
+    db = read_db()
+    meds = db.get('medicines', [])
+    for med in list(meds):
+        if med.get('name') == name:
+            meds.remove(med)
+            write_db(db)
+            avg = compute_average_from_db(db)
+            return {"message": f"Medicine deleted successfully with name: {name}", "average": avg["average"], "count": avg["count"]}
     return {"error": "Medicine not found"}
 
-# Add your average function here
 
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+@app.get('/medicines/average')
+def average_price():
+    """Return average across non-null, numeric prices.
+
+    Rules:
+    - Accept ints/floats directly.
+    - Accept numeric strings (e.g. "12.50", "$12.50").
+    - Ignore null (JSON null -> Python None) and any non-numeric values such as "N/A".
+    """
+    db = read_db()
+    return compute_average_from_db(db)
+
+
+if __name__ == '__main__':
+    uvicorn.run('backend.main:app', host='0.0.0.0', port=8000)

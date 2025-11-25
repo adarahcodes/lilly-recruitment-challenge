@@ -41,6 +41,32 @@ body {
     box-shadow: 0 6px 18px rgba(0,0,0,0.06);
 }
 
+/* Two-column layout: left = list, right = form */
+.columns {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+.columns .left { flex: 2; }
+.columns .right { flex: 1; }
+
+.form-card {
+    background: #fafafa;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #f0f0f0;
+}
+
+/* Make sure list area looks like a card too */
+#medicine-list-section {
+    background: transparent;
+}
+
+/* Slightly larger spacing for headings inside cards */
+.form-card h2, #medicine-list-section h2 { margin-top: 0; margin-bottom: 0.75rem; }
+
+header { text-align: center; margin-top: 0.5rem; }
+
 /* Form */
 .form-section h2 {
     margin-top: 0;
@@ -79,6 +105,22 @@ body {
     cursor: not-allowed;
 }
 
+/* Medicines list */
+.medicine-item { padding: 0.5rem 0; border-bottom: 1px solid #f0f0f0; }
+.medicine-item .price { color: #555; }
+
+.medicine-content { display: inline-block; margin-right: 0.75rem; }
+.item-actions { display: inline-flex; gap: 0.5rem; vertical-align: middle; }
+.btn { padding: 0.35rem 0.6rem; border-radius: 6px; border: 1px solid transparent; cursor: pointer; font-weight: 600; }
+.btn-edit { background: #ffd966; border-color: #f0c040; }
+.btn-delete { background: #ffd6d6; border-color: #e09; }
+.btn-save { background: #d4f7d4; border-color: #4caf50; }
+.btn-cancel { background: #f0f0f0; border-color: #ccc; }
+.edit-price { width: 100px; margin-left: 0.5rem; }
+
+/* Average display */
+#average-price { margin-bottom: 0.75rem; font-weight: 600; }
+
 /* Messages */
 .message { margin-top: 0.75rem; padding: 0.5rem; border-radius: 4px; }
 .message.info { background: #eef6ff; color: #0366d6; }
@@ -87,4 +129,8 @@ body {
 
 @media (max-width: 480px) {
     .container { margin: 1rem; padding: 1rem; }
+}
+
+@media (max-width: 700px) {
+    .columns { flex-direction: column; }
 }
