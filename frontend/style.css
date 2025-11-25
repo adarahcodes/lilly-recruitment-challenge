@@ -30,3 +30,61 @@ body {
 }
 
 /* ---- Your custom styles below ---- */
+
+/* Container */
+.container {
+    max-width: 800px;
+    margin: 2.5rem auto;
+    background: #fff;
+    padding: 1.25rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+
+/* Form */
+.form-section h2 {
+    margin-top: 0;
+    font-size: 1.25rem;
+}
+.form-row {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0.75rem;
+}
+.form-row label {
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+}
+.form-row input[type="text"],
+.form-row input[type="number"] {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+.form-actions {
+    margin-top: 0.5rem;
+}
+.form-actions button {
+    background: #0078d4;
+    color: white;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+.form-actions button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Messages */
+.message { margin-top: 0.75rem; padding: 0.5rem; border-radius: 4px; }
+.message.info { background: #eef6ff; color: #0366d6; }
+.message.success { background: #ecfdf3; color: #06632a; }
+.message.error { background: #fff0f0; color: #7a0b0b; }
+
+@media (max-width: 480px) {
+    .container { margin: 1rem; padding: 1rem; }
+}
