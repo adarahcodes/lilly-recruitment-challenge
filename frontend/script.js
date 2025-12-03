@@ -264,6 +264,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Initial load
+  // Initial load: fetch average first to ensure it appears quickly,
+  // then load the medicines list. This helps rule out load-order
+  // or caching issues where the average may be overwritten.
+  await loadAverage();
   loadMedicines();
 });
