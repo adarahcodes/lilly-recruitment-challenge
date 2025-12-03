@@ -9,7 +9,7 @@
 I went in a chronological order, doing HTML,CSS first and then moving on to JavaScript. Using the HTML and CSS to make a wireframe of what i want the the webpage to look like and then moving on to the dynamic functionalities.
 my JavaScript is still a work in progress in terms of skills as we are covering it within university and outside of university so I did frequent some resources such as w3schools as well as stack overflow if I were to look at specific functionalities that I could've added to the project (although I opted to keep it simple)
 Python being my strong suit among the four languages I did spend quite a long time trying to tweak it, especially to get the average sum of the medicines on the website however I did not get that completed 
-I didn't use video tutorials because I wanted to try make this as accurate to myself as I could however i did use various resources to both learn html css and js as well as certain aspects for my page, for example using DOM which is something that was new to me. 
+I didn't use video tutorials because I wanted to try make this as accurate to myself as I could however the lines may be slightly blurred with use of other external resources
 
 ## Objectives - Innovative Solutions
 *For the challenge objectives, did you do anything in a particular way that you want to discuss? Is there anything you're particularly proud of that you want to highlight? Did you attempt some objectives multiple times, or go back and re-write particular sections of code? If so, why? Use this space to document any key points you'd like to tell us about.* 
