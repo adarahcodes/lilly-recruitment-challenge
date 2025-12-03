@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   const form = document.getElementById('medicine-form');
   const nameInput = document.getElementById('med-name');
   const priceInput = document.getElementById('med-price');
