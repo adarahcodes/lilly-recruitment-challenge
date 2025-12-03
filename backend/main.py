@@ -134,4 +134,9 @@ def average_price():
 
 
 if __name__ == '__main__':
-    uvicorn.run('backend.main:app', host='0.0.0.0', port=8000)
+    # Run the app directly using the `app` object. Using the import-string
+    # (e.g. 'backend.main:app') requires the package to be importable from
+    # the current working directory. Running `uvicorn` with the `app` object
+    # avoids ModuleNotFoundError when the script is executed from inside the
+    # `backend/` folder (e.g. `python main.py`).
+    uvicorn.run(app, host='0.0.0.0', port=8000)
